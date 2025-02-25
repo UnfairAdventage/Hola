@@ -1,98 +1,148 @@
 
--- Crear la base de datos
-CREATE DATABASE Extraordinario_Alexander;
-USE Extraordinario_Alexander;
+CREATE DATABASE ClinicaMedica;
+USE ClinicaMedica;
 
--- Tabla Lector
-CREATE TABLE Lector (
-    rut VARCHAR(12) NOT NULL,
-    id_lector INT PRIMARY KEY AUTO_INCREMENT,
-    nom_1 VARCHAR(50) NOT NULL,
-    nom_2 VARCHAR(50),
-    ape_1 VARCHAR(50) NOT NULL,
-    ape_2 VARCHAR(50),
-    curso VARCHAR(20),
-    fecha_nac DATE,
-    tipo VARCHAR(20),
-    carnet VARCHAR(20),
-    activo BOOLEAN DEFAULT TRUE
+
+CREATE TABLE Tipo_usuario (
+    id_tipo_usuario INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_tipo VARCHAR(50),
+    estado_tipo BOOLEAN DEFAULT TRUE
 );
 
--- Tabla Autor
-CREATE TABLE Autor (
-    id_autor INT PRIMARY KEY AUTO_INCREMENT,
-    nom_aut VARCHAR(100) NOT NULL
+
+CREATE TABLE Usuario (
+    id_usuario INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_usu VARCHAR(100),
+    apellido_usu VARCHAR(100),
+    cedula_usu VARCHAR(20),
+    direccion_usu VARCHAR(200),
+    telefono_usu VARCHAR(20),
+    estado_usu BOOLEAN DEFAULT TRUE,
+    id_tipo_usuario INT,
+    FOREIGN KEY (id_tipo_usuario) REFERENCES Tipo_usuario(id_tipo_usuario)
 );
 
--- Tabla Materia
-CREATE TABLE Materia (
-    id_mat INT PRIMARY KEY AUTO_INCREMENT,
-    nom_mat VARCHAR(50) NOT NULL
+
+CREATE TABLE Clientes (
+    id_cliente INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_cli VARCHAR(100),
+    apellido_cli VARCHAR(100),
+    direccion_cli VARCHAR(200),
+    telefono_cli VARCHAR(20),
+    email_cli VARCHAR(100),
+    ocupacion_cli VARCHAR(100),
+    estado_cli BOOLEAN DEFAULT TRUE
 );
 
--- Tabla Editorial
-CREATE TABLE Editorial (
-    id_ed INT PRIMARY KEY AUTO_INCREMENT,
-    nom_ed VARCHAR(100) NOT NULL
+
+CREATE TABLE Paciente (
+    id_paciente INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_pac VARCHAR(100),
+    area_pac VARCHAR(100),
+    sexo_pac CHAR(1),
+    especie_pac VARCHAR(50),
+    fechanacimiento_pac DATE,
+    esterilizacion_pac BOOLEAN,
+    tipoalimentacion_pac VARCHAR(100),
+    estado_pac BOOLEAN DEFAULT TRUE,
+    id_cliente INT,
+    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
 );
 
--- Tabla Libro
-CREATE TABLE Libro (
-    cod_top VARCHAR(20),
-    id_libro INT PRIMARY KEY AUTO_INCREMENT,
-    titulo VARCHAR(200) NOT NULL,
-    autor INT,
-    materia INT,
-    editorial INT,
-    a_edicion INT,
-    procedencia VARCHAR(100),
-    fecha_ingreso DATE,
-    activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (autor) REFERENCES Autor(id_autor),
-    FOREIGN KEY (materia) REFERENCES Materia(id_mat),
-    FOREIGN KEY (editorial) REFERENCES Editorial(id_ed)
+
+CREATE TABLE Ficha_medica (
+    id_ficha INT PRIMARY KEY AUTO_INCREMENT,
+    codigo_ficha VARCHAR(20),
+    fecha_apertura DATE,
+    estado_ficha BOOLEAN DEFAULT TRUE,
+    id_paciente INT,
+    FOREIGN KEY (id_paciente) REFERENCES Paciente(id_paciente)
 );
 
--- Tabla Prestamo
-CREATE TABLE Prestamo (
-    id_prestamo INT PRIMARY KEY AUTO_INCREMENT,
-    pres_lect INT,
-    fech_prest DATE,
-    fech_dev DATE,
-    estado VARCHAR(20),
-    FOREIGN KEY (pres_lect) REFERENCES Lector(id_lector)
+
+CREATE TABLE Historia_clinica (
+    id_historia INT PRIMARY KEY AUTO_INCREMENT,
+    codigo_historia VARCHAR(20),
+    fecha_historia DATE,
+    diagnostico_diferen TEXT,
+    diagnostico_defini TEXT,
+    tratamiento TEXT,
+    id_ficha INT,
+    FOREIGN KEY (id_ficha) REFERENCES Ficha_medica(id_ficha)
 );
 
--- Tabla Administrador
-CREATE TABLE Administrador (
-    usuario VARCHAR(50) PRIMARY KEY,
-    pass VARCHAR(255) NOT NULL
+
+CREATE TABLE Examen (
+    id_examen INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_exa VARCHAR(100),
+    estado_exa BOOLEAN DEFAULT TRUE,
+    tipo_exa VARCHAR(50)
 );
 
-INSERT INTO Autor (nom_aut) VALUES
-('Gabriel García Márquez'),
-('Isabel Allende');
 
-INSERT INTO Materia (nom_mat) VALUES
-('Literatura Latinoamericana'),
-('Ciencia Ficción');
+CREATE TABLE Cita (
+    id_cita INT PRIMARY KEY AUTO_INCREMENT,
+    fecha_cita DATETIME,
+    codigo_cita VARCHAR(20),
+    estado_cita BOOLEAN DEFAULT TRUE,
+    id_paciente INT,
+    id_usuario INT,
+    FOREIGN KEY (id_paciente) REFERENCES Paciente(id_paciente),
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
+);
 
-INSERT INTO Editorial (nom_ed) VALUES
-('Planeta'),
-('Penguin Random House');
 
-INSERT INTO Lector (rut, nom_1, nom_2, ape_1, ape_2, curso, fecha_nac, tipo, carnet) VALUES
-('12345678-9', 'Juan', 'Pablo', 'González', 'Pérez', '2°A', '2005-05-15', 'Estudiante', 'EST001'),
-('98765432-1', 'María', 'José', 'Rodríguez', 'López', '3°B', '2004-08-22', 'Estudiante', 'EST002');
+CREATE TABLE Orden_examen (
+    id_orden INT PRIMARY KEY AUTO_INCREMENT,
+    id_examen INT,
+    id_historia INT,
+    fecha_orden DATE,
+    FOREIGN KEY (id_examen) REFERENCES Examen(id_examen),
+    FOREIGN KEY (id_historia) REFERENCES Historia_clinica(id_historia)
+);
 
-INSERT INTO Libro (cod_top, titulo, autor, materia, editorial, a_edicion, procedencia, fecha_ingreso, activo) VALUES
-('LIT001', 'Cien años de soledad', 1, 1, 1, 2017, 'Compra', '2023-01-15', TRUE),
-('LIT002', 'La casa de los espíritus', 2, 1, 2, 2019, 'Donación', '2023-02-20', TRUE);
 
-INSERT INTO Prestamo (pres_lect, fech_prest, fech_dev, estado) VALUES
-(1, '2024-03-01', '2024-03-15', 'Devuelto'),
-(2, '2024-03-05', '2024-03-19', 'Prestado');
 
-INSERT INTO Administrador (usuario, pass) VALUES
-('admin1', 'password123'),
-('admin2', 'password456');
+INSERT INTO Tipo_usuario (nombre_tipo, estado_tipo) VALUES
+('Veterinario', TRUE),
+('Asistente', TRUE);
+
+
+INSERT INTO Usuario (nombre_usu, apellido_usu, cedula_usu, direccion_usu, telefono_usu, estado_usu, id_tipo_usuario) VALUES
+('Juan', 'Pérez', '12345678', 'Calle Principal 123', '555-0101', TRUE, 1),
+('María', 'González', '87654321', 'Avenida Central 456', '555-0202', TRUE, 2);
+
+
+INSERT INTO Clientes (nombre_cli, apellido_cli, direccion_cli, telefono_cli, email_cli, ocupacion_cli, estado_cli) VALUES
+('Pedro', 'Rodríguez', 'Calle 1 #234', '555-1111', 'pedro@email.com', 'Ingeniero', TRUE),
+('Ana', 'Martínez', 'Avenida 2 #567', '555-2222', 'ana@email.com', 'Profesora', TRUE);
+
+
+INSERT INTO Paciente (nombre_pac, area_pac, sexo_pac, especie_pac, fechanacimiento_pac, esterilizacion_pac, tipoalimentacion_pac, estado_pac, id_cliente) VALUES
+('Luna', 'Pequeños animales', 'H', 'Canino', '2020-05-15', TRUE, 'Alimento balanceado', TRUE, 1),
+('Max', 'Pequeños animales', 'M', 'Felino', '2021-03-10', FALSE, 'Alimento húmedo', TRUE, 2);
+
+
+INSERT INTO Ficha_medica (codigo_ficha, fecha_apertura, estado_ficha, id_paciente) VALUES
+('FM001', '2024-03-01', TRUE, 1),
+('FM002', '2024-03-02', TRUE, 2);
+
+
+INSERT INTO Historia_clinica (codigo_historia, fecha_historia, diagnostico_diferen, diagnostico_defini, tratamiento, id_ficha) VALUES
+('HC001', '2024-03-01', 'Posible gastritis', 'Gastritis aguda', 'Dieta blanda y medicamentos', 1),
+('HC002', '2024-03-02', 'Posible resfriado', 'Gripe felina', 'Antibióticos y reposo', 2);
+
+
+INSERT INTO Examen (nombre_exa, estado_exa, tipo_exa) VALUES
+('Hemograma completo', TRUE, 'Laboratorio'),
+('Rayos X', TRUE, 'Imagen');
+
+
+INSERT INTO Cita (fecha_cita, codigo_cita, estado_cita, id_paciente, id_usuario) VALUES
+('2024-03-15 09:00:00', 'CIT001', TRUE, 1, 1),
+('2024-03-16 10:00:00', 'CIT002', TRUE, 2, 2);
+
+
+INSERT INTO Orden_examen (id_examen, id_historia, fecha_orden) VALUES
+(1, 1, '2024-03-01'),
+(2, 2, '2024-03-02');
