@@ -1,148 +1,133 @@
+CREATE DATABASE PARCIAL_2_ALEXANDER;
+USE PARCIAL_2_ALEXANDER;
 
-CREATE DATABASE ClinicaMedica;
-USE ClinicaMedica;
+DELIMITER $$
 
+CREATE TABLE Departamento (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(50)
+)$$
 
-CREATE TABLE Tipo_usuario (
-    id_tipo_usuario INT PRIMARY KEY AUTO_INCREMENT,
-    nombre_tipo VARCHAR(50),
-    estado_tipo BOOLEAN DEFAULT TRUE
-);
+CREATE TABLE Profesor (
+    id INT PRIMARY KEY,
+    nit VARCHAR(9) UNIQUE,
+    nombre VARCHAR(25),
+    apellido1 VARCHAR(50),
+    apellido2 VARCHAR(50),
+    ciudad VARCHAR(50),
+    direccion VARCHAR(50),
+    telefono VARCHAR(9),
+    fecha_nacimiento DATE,
+    sexo ENUM('M', 'F'),
+    id_departamento INT,
+    FOREIGN KEY (id_departamento) REFERENCES Departamento(id)
+)$$
 
+CREATE TABLE Grado (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(100)
+)$$
 
-CREATE TABLE Usuario (
-    id_usuario INT PRIMARY KEY AUTO_INCREMENT,
-    nombre_usu VARCHAR(100),
-    apellido_usu VARCHAR(100),
-    cedula_usu VARCHAR(20),
-    direccion_usu VARCHAR(200),
-    telefono_usu VARCHAR(20),
-    estado_usu BOOLEAN DEFAULT TRUE,
-    id_tipo_usuario INT,
-    FOREIGN KEY (id_tipo_usuario) REFERENCES Tipo_usuario(id_tipo_usuario)
-);
+CREATE TABLE Asignatura (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(1000),
+    creditos FLOAT,
+    tipo ENUM('Obligatoria', 'Optativa'),
+    curso TINYINT(3),
+    cuatrimestre TINYINT(3),
+    id_profesor INT,
+    id_grado INT,
+    FOREIGN KEY (id_profesor) REFERENCES Profesor(id),
+    FOREIGN KEY (id_grado) REFERENCES Grado(id)
+)$$
 
+CREATE TABLE Curso_Escolar (
+    id_curso INT PRIMARY KEY,
+    anyo_inicio YEAR(4),
+    anyo_fin YEAR(4)
+)$$
 
-CREATE TABLE Clientes (
-    id_cliente INT PRIMARY KEY AUTO_INCREMENT,
-    nombre_cli VARCHAR(100),
-    apellido_cli VARCHAR(100),
-    direccion_cli VARCHAR(200),
-    telefono_cli VARCHAR(20),
-    email_cli VARCHAR(100),
-    ocupacion_cli VARCHAR(100),
-    estado_cli BOOLEAN DEFAULT TRUE
-);
+CREATE TABLE Alumno (
+    id INT PRIMARY KEY,
+    nit VARCHAR(9) UNIQUE,
+    nombre VARCHAR(25),
+    apellido1 VARCHAR(50),
+    apellido2 VARCHAR(50),
+    ciudad VARCHAR(50),
+    direccion VARCHAR(50),
+    telefono VARCHAR(9),
+    fecha_nacimiento DATE,
+    sexo ENUM('M', 'F')
+)$$
 
+CREATE TABLE Alumno_se_matricula_Asignatura (
+    id_alumno INT,
+    id_asignatura INT,
+    id_escolar INT,
+    FOREIGN KEY (id_alumno) REFERENCES Alumno(id),
+    FOREIGN KEY (id_asignatura) REFERENCES Asignatura(id),
+    FOREIGN KEY (id_escolar) REFERENCES Curso_Escolar(id_curso)
+)$$
 
-CREATE TABLE Paciente (
-    id_paciente INT PRIMARY KEY AUTO_INCREMENT,
-    nombre_pac VARCHAR(100),
-    area_pac VARCHAR(100),
-    sexo_pac CHAR(1),
-    especie_pac VARCHAR(50),
-    fechanacimiento_pac DATE,
-    esterilizacion_pac BOOLEAN,
-    tipoalimentacion_pac VARCHAR(100),
-    estado_pac BOOLEAN DEFAULT TRUE,
-    id_cliente INT,
-    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
-);
+DELIMITER ;
 
+INSERT INTO Departamento (id, nombre) VALUES
+(10, 'Departamento 1'), (20, 'Departamento 2'), (30, 'Departamento 3'), (40, 'Departamento 4'),
+(50, 'Departamento 5'), (60, 'Departamento 6'), (70, 'Departamento 7'), (80, 'Departamento 8'),
+(90, 'Departamento 9'), (100, 'Departamento 10'), (110, 'Departamento 11'), (120, 'Departamento 12'),
+(130, 'Departamento 13'), (140, 'Departamento 14'), (150, 'Departamento 15'), (160, 'Departamento 16'),
+(170, 'Departamento 17'), (180, 'Departamento 18'), (190, 'Departamento 19'), (200, 'Departamento 20');
 
-CREATE TABLE Ficha_medica (
-    id_ficha INT PRIMARY KEY AUTO_INCREMENT,
-    codigo_ficha VARCHAR(20),
-    fecha_apertura DATE,
-    estado_ficha BOOLEAN DEFAULT TRUE,
-    id_paciente INT,
-    FOREIGN KEY (id_paciente) REFERENCES Paciente(id_paciente)
-);
+DELIMITER $$
+CREATE PROCEDURE InsertProfesores()
+BEGIN
+    DECLARE i INT DEFAULT 100;
+    WHILE i <= 10000 DO
+        INSERT INTO Profesor (id, nit, nombre, apellido1, apellido2, ciudad, direccion, telefono, fecha_nacimiento, sexo, id_departamento)
+        VALUES (i, CONCAT('NIT', i), CONCAT('Nombre', i), CONCAT('Apellido1-', i), CONCAT('Apellido2-', i), CONCAT('Ciudad-', i),
+                CONCAT('Direccion-', i), CONCAT('Tel-', i), '1975-01-01', IF(i % 2 = 0, 'F', 'M'), (i % 200) + 10);
+        SET i = i + 100;
+    END WHILE;
+END$$
+DELIMITER ;
+CALL InsertProfesores();
 
+INSERT INTO Grado (id, nombre) VALUES
+(30, 'Grado 1'), (60, 'Grado 2'), (90, 'Grado 3'), (120, 'Grado 4'), (150, 'Grado 5'),
+(180, 'Grado 6'), (210, 'Grado 7'), (240, 'Grado 8'), (270, 'Grado 9'), (300, 'Grado 10'),
+(330, 'Grado 11'), (360, 'Grado 12'), (390, 'Grado 13'), (420, 'Grado 14');
 
-CREATE TABLE Historia_clinica (
-    id_historia INT PRIMARY KEY AUTO_INCREMENT,
-    codigo_historia VARCHAR(20),
-    fecha_historia DATE,
-    diagnostico_diferen TEXT,
-    diagnostico_defini TEXT,
-    tratamiento TEXT,
-    id_ficha INT,
-    FOREIGN KEY (id_ficha) REFERENCES Ficha_medica(id_ficha)
-);
+INSERT INTO Curso_Escolar (id_curso, anyo_inicio, anyo_fin) VALUES
+(50, 2001, 2002), (100, 2002, 2003), (150, 2003, 2004), (200, 2004, 2005),
+(250, 2005, 2006), (300, 2006, 2007), (350, 2007, 2008), (400, 2008, 2009),
+(450, 2009, 2010), (500, 2010, 2011);
 
+DELIMITER $$
+CREATE PROCEDURE InsertAlumnos()
+BEGIN
+    DECLARE i INT DEFAULT 1000;
+    WHILE i < 1150 DO
+        INSERT INTO Alumno (id, nit, nombre, apellido1, apellido2, ciudad, direccion, telefono, fecha_nacimiento, sexo)
+        VALUES (i, CONCAT('NIT', i), CONCAT('Alumno', i), CONCAT('Apellido1-', i), CONCAT('Apellido2-', i), CONCAT('Ciudad-', i),
+                CONCAT('Direccion-', i), CONCAT('Tel-', i), '2005-01-01', IF(i % 2 = 0, 'F', 'M'));
+        SET i = i + 1;
+    END WHILE;
+END$$
+DELIMITER ;
+CALL InsertAlumnos();
 
-CREATE TABLE Examen (
-    id_examen INT PRIMARY KEY AUTO_INCREMENT,
-    nombre_exa VARCHAR(100),
-    estado_exa BOOLEAN DEFAULT TRUE,
-    tipo_exa VARCHAR(50)
-);
-
-
-CREATE TABLE Cita (
-    id_cita INT PRIMARY KEY AUTO_INCREMENT,
-    fecha_cita DATETIME,
-    codigo_cita VARCHAR(20),
-    estado_cita BOOLEAN DEFAULT TRUE,
-    id_paciente INT,
-    id_usuario INT,
-    FOREIGN KEY (id_paciente) REFERENCES Paciente(id_paciente),
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
-);
-
-
-CREATE TABLE Orden_examen (
-    id_orden INT PRIMARY KEY AUTO_INCREMENT,
-    id_examen INT,
-    id_historia INT,
-    fecha_orden DATE,
-    FOREIGN KEY (id_examen) REFERENCES Examen(id_examen),
-    FOREIGN KEY (id_historia) REFERENCES Historia_clinica(id_historia)
-);
-
-
-
-INSERT INTO Tipo_usuario (nombre_tipo, estado_tipo) VALUES
-('Veterinario', TRUE),
-('Asistente', TRUE);
-
-
-INSERT INTO Usuario (nombre_usu, apellido_usu, cedula_usu, direccion_usu, telefono_usu, estado_usu, id_tipo_usuario) VALUES
-('Juan', 'Pérez', '12345678', 'Calle Principal 123', '555-0101', TRUE, 1),
-('María', 'González', '87654321', 'Avenida Central 456', '555-0202', TRUE, 2);
-
-
-INSERT INTO Clientes (nombre_cli, apellido_cli, direccion_cli, telefono_cli, email_cli, ocupacion_cli, estado_cli) VALUES
-('Pedro', 'Rodríguez', 'Calle 1 #234', '555-1111', 'pedro@email.com', 'Ingeniero', TRUE),
-('Ana', 'Martínez', 'Avenida 2 #567', '555-2222', 'ana@email.com', 'Profesora', TRUE);
-
-
-INSERT INTO Paciente (nombre_pac, area_pac, sexo_pac, especie_pac, fechanacimiento_pac, esterilizacion_pac, tipoalimentacion_pac, estado_pac, id_cliente) VALUES
-('Luna', 'Pequeños animales', 'H', 'Canino', '2020-05-15', TRUE, 'Alimento balanceado', TRUE, 1),
-('Max', 'Pequeños animales', 'M', 'Felino', '2021-03-10', FALSE, 'Alimento húmedo', TRUE, 2);
-
-
-INSERT INTO Ficha_medica (codigo_ficha, fecha_apertura, estado_ficha, id_paciente) VALUES
-('FM001', '2024-03-01', TRUE, 1),
-('FM002', '2024-03-02', TRUE, 2);
-
-
-INSERT INTO Historia_clinica (codigo_historia, fecha_historia, diagnostico_diferen, diagnostico_defini, tratamiento, id_ficha) VALUES
-('HC001', '2024-03-01', 'Posible gastritis', 'Gastritis aguda', 'Dieta blanda y medicamentos', 1),
-('HC002', '2024-03-02', 'Posible resfriado', 'Gripe felina', 'Antibióticos y reposo', 2);
-
-
-INSERT INTO Examen (nombre_exa, estado_exa, tipo_exa) VALUES
-('Hemograma completo', TRUE, 'Laboratorio'),
-('Rayos X', TRUE, 'Imagen');
-
-
-INSERT INTO Cita (fecha_cita, codigo_cita, estado_cita, id_paciente, id_usuario) VALUES
-('2024-03-15 09:00:00', 'CIT001', TRUE, 1, 1),
-('2024-03-16 10:00:00', 'CIT002', TRUE, 2, 2);
-
-
-INSERT INTO Orden_examen (id_examen, id_historia, fecha_orden) VALUES
-(1, 1, '2024-03-01'),
-(2, 2, '2024-03-02');
+DESC Departamento;
+DESC Profesor;
+DESC Asignatura;
+DESC Grado;
+DESC Alumno_se_matricula_Asignatura;
+DESC Curso_Escolar;
+DESC Alumno;
+SELECT * FROM Departamento LIMIT 5;
+SELECT * FROM Profesor LIMIT 5;
+SELECT * FROM Asignatura LIMIT 5;
+SELECT * FROM Grado LIMIT 5;
+SELECT * FROM Alumno_se_matricula_Asignatura LIMIT 5;
+SELECT * FROM Curso_Escolar LIMIT 5;
+SELECT * FROM Alumno LIMIT 5;
+SHOW TABLES;
