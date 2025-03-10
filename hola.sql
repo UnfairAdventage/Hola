@@ -116,6 +116,54 @@ END$$
 DELIMITER ;
 CALL InsertAlumnos();
 
+DELIMITER $$
+CREATE PROCEDURE InsertAsignaturas()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    WHILE i <= 40 DO
+        INSERT INTO Asignatura (id, nombre, creditos, tipo, curso, cuatrimestre, id_profesor, id_grado)
+        VALUES (i, CONCAT('Asignatura ', i), 
+               ROUND(RAND() * 3 + 3, 1), 
+               IF(i % 2 = 0, 'Obligatoria', 'Optativa'),
+               (i % 4) + 1,
+               (i % 3) + 1,
+               100 + ((i-1) * 100),
+               30 + ((i % 14) * 30));
+        SET i = i + 1;
+    END WHILE;
+END$$
+DELIMITER ;
+CALL InsertAsignaturas();
+
+DELETE FROM Curso_Escolar;
+DELIMITER $$
+CREATE PROCEDURE InsertCursoEscolar()
+BEGIN
+    DECLARE i INT DEFAULT 50;
+    WHILE i <= 2500 DO
+        INSERT INTO Curso_Escolar (id_curso, anyo_inicio, anyo_fin)
+        VALUES (i, 2000 + (i/50), 2001 + (i/50));
+        SET i = i + 50;
+    END WHILE;
+END$$
+DELIMITER ;
+CALL InsertCursoEscolar();
+
+DELIMITER $$
+CREATE PROCEDURE InsertMatriculas()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    WHILE i <= 60 DO
+        INSERT INTO Alumno_se_matricula_Asignatura (id_alumno, id_asignatura, id_escolar)
+        VALUES (1000 + (i % 150), 
+               (i % 40) + 1,
+               50 + ((i % 50) * 50));
+        SET i = i + 1;
+    END WHILE;
+END$$
+DELIMITER ;
+CALL InsertMatriculas();
+
 DESC Departamento;
 DESC Profesor;
 DESC Asignatura;
@@ -123,11 +171,11 @@ DESC Grado;
 DESC Alumno_se_matricula_Asignatura;
 DESC Curso_Escolar;
 DESC Alumno;
-SELECT * FROM Departamento LIMIT 5;
-SELECT * FROM Profesor LIMIT 5;
-SELECT * FROM Asignatura LIMIT 5;
-SELECT * FROM Grado LIMIT 5;
-SELECT * FROM Alumno_se_matricula_Asignatura LIMIT 5;
-SELECT * FROM Curso_Escolar LIMIT 5;
-SELECT * FROM Alumno LIMIT 5;
+SELECT * FROM Departamento;
+SELECT * FROM Profesor;
+SELECT * FROM Asignatura;
+SELECT * FROM Grado;
+SELECT * FROM Alumno_se_matricula_Asignatura;
+SELECT * FROM Curso_Escolar;
+SELECT * FROM Alumno;
 SHOW TABLES;
